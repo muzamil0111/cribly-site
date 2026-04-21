@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cribly Preview</title>
+  <style>
+    :root{
+      --bg:#071116;
+      --panel:#0c1820;
+      --panel2:rgba(255,255,255,.05);
+      --line:rgba(255,255,255,.10);
+      --text:#f3fbfb;
+      --muted:rgba(243,251,251,.65);
+      --muted2:rgba(243,251,251,.45);
+      --teal:#79f0e3;
+      --teal2:#51d9cb;
+      --rose:#ff8da1;
+      --amber:#ffd48a;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{text-decoration:none;color:inherit}
+    button,input{font:inherit}
+    .app{min-height:100vh;overflow-x:hidden;position:relative}
+    .glow{position:absolute;border-radius:999px;filter:blur(70px);opacity:.26;pointer-events:none;background:radial-gradient(circle, rgba(81,217,203,.72) 0%, rgba(81,217,203,.12) 44%, transparent 70%)}
+    .g1{width:320px;height:320px;left:-110px;top:80px}
+    .g2{width:380px;height:380px;right:-120px;top:460px}
+    .container{max-width:1240px;margin:0 auto;padding:0 24px}
+    .nav{position:sticky;top:0;z-index:40;border-bottom:1px solid var(--line);background:rgba(7,17,22,.78);backdrop-filter:blur(18px)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
+    .brand{display:flex;align-items:center;gap:14px;cursor:pointer}
+    .brand-icon{width:42px;height:42px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.04);display:grid;place-items:center;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
+    .brand-icon::before{content:"";width:18px;height:18px;border-radius:7px;background:linear-gradient(180deg,var(--teal),var(--teal2));display:block}
+    .brand-icon::after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:white;border:2px solid var(--bg);top:7px;right:7px}
+    .brand-name{font-weight:700;font-size:20px;letter-spacing:-.03em}
+    .brand-sub{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted2);margin-top:1px}
+    .nav-links{display:flex;gap:28px;align-items:center}
+    .nav-links a,.nav-links button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px}
+    .nav-actions{display:flex;gap:12px;align-items:center}
+    .btn{border:none;cursor:pointer;border-radius:18px;padding:13px 18px;font-weight:600;transition:.18s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:var(--teal);color:#062127}
+    .btn.ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line)}
+    .hero{padding:62px 0 104px;display:grid;grid-template-columns:1.08fr .92fr;gap:44px;align-items:center;position:relative}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(121,240,227,.1);border:1px solid rgba(121,240,227,.18);color:#bffff7;font-size:12px}
+    h1{font-size:72px;line-height:.96;letter-spacing:-.06em;margin:20px 0 0;max-width:760px}
+    .hero p{font-size:19px;line-height:1.8;color:var(--muted);max-width:620px;margin:24px 0 0}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+    .card{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .metric{padding:18px}
+    .metric-icon{width:44px;height:44px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:18px}
+    .metric-label{font-size:14px;color:var(--muted);margin-top:14px}
+    .metric-value{font-size:28px;font-weight:700;letter-spacing:-.04em;margin-top:3px}
+    .metric-note{font-size:14px;color:var(--muted2);margin-top:6px;line-height:1.6}
+    .hero-preview{position:relative}
+    .hero-preview > .card{background:rgba(12,24,32,.92)}
+    .preview-head{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+    .preview-title{font-size:24px;font-weight:700;letter-spacing:-.04em}
+    .preview-sub{font-size:14px;color:var(--muted2);margin-top:6px}
+    .pill{display:inline-flex;padding:8px 12px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted)}
+    .pill.high{background:rgba(255,141,161,.1);color:#ffd2da;border-color:rgba(255,141,161,.18)}
+    .pill.medium{background:rgba(255,212,138,.1);color:#ffe3b9;border-color:rgba(255,212,138,.2)}
+    .preview-body{padding:22px}
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .stat-box{border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.04);padding:16px}
+    .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2)}
+    .stat-value{font-size:28px;font-weight:700;letter-spacing:-.04em;margin-top:7px}
+    .stat-note{font-size:14px;color:var(--muted2);margin-top:5px}
+    .split{display:grid;grid-template-columns:1fr .92fr;gap:16px;margin-top:18px}
+    .box{border-radius:24px;border:1px solid var(--line);background:rgba(255,255,255,.04);padding:18px}
+    .box h3{margin:4px 0 0;font-size:20px;letter-spacing:-.03em}
+    .row{margin-top:16px}
+    .row-top{display:flex;justify-content:space-between;gap:14px;font-size:14px;color:var(--muted)}
+    .bar{margin-top:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+    .bar > span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--teal),#9ff7ee)}
+    .timeline-item{border-radius:20px;background:#08131a;border:1px solid var(--line);padding:16px;margin-top:12px}
+    .timeline-title{font-size:17px;font-weight:600;margin-top:8px}
+    .timeline-text{font-size:14px;color:var(--muted);line-height:1.7;margin-top:6px}
+    .ai-box{position:relative;background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));overflow:hidden}
+    .ai-box::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg, rgba(121,240,227,.12), transparent 45%)}
+    .ai-box > *{position:relative}
+    .ai-title{font-size:15px;color:#bffff7;display:flex;align-items:center;gap:8px}
+    .ai-heading{font-size:24px;font-weight:650;line-height:1.35;letter-spacing:-.03em;margin-top:10px}
+    .ai-text{font-size:14px;color:var(--muted);line-height:1.8;margin-top:14px}
+    .locked{margin-top:18px;border-radius:20px;border:1px solid var(--line);background:rgba(0,0,0,.18);padding:15px}
+    .locked .small{font-size:13px;color:var(--muted)}
+    .section{padding:22px 0 8px}
+    .section-head{max-width:760px;margin-bottom:34px}
+    .section-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.22em;color:#bffff7}
+    .section-title{font-size:48px;line-height:1.04;letter-spacing:-.05em;font-weight:700;margin-top:12px}
+    .section-desc{font-size:17px;color:var(--muted);line-height:1.8;margin-top:14px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .feature{padding:22px}
+    .feature-icon{width:48px;height:48px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.05);display:grid;place-items:center;font-size:20px}
+    .feature-title{font-size:22px;letter-spacing:-.03em;font-weight:650;margin-top:16px}
+    .feature-text{font-size:14px;color:var(--muted);line-height:1.8;margin-top:10px}
+    .steps .feature-title{font-size:24px}
+    .num{font-size:12px;letter-spacing:.28em;color:#bffff7;text-transform:uppercase}
+    .switch{display:inline-flex;gap:4px;padding:6px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--line);align-items:center;margin-bottom:18px}
+    .switch button{border:none;background:transparent;color:var(--muted);padding:10px 14px;border-radius:12px;cursor:pointer}
+    .switch button.active{background:white;color:#08131a}
+    .pricing{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .price-card{padding:22px;display:flex;flex-direction:column;min-height:430px}
+    .price-card.popular{background:linear-gradient(180deg, rgba(121,240,227,.12), rgba(255,255,255,.04));border-color:rgba(121,240,227,.35)}
+    .price-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .price-name{font-size:24px;font-weight:650;letter-spacing:-.04em}
+    .price-sub{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.7}
+    .price-value{font-size:42px;font-weight:750;letter-spacing:-.05em;margin-top:26px}
+    .price-strike{font-size:14px;color:var(--muted2);text-decoration:line-through;margin-top:6px}
+    .price-credits{font-size:14px;color:var(--muted2);margin-top:8px}
+    .list{display:grid;gap:12px;margin-top:22px}
+    .list-item{font-size:14px;color:var(--muted);display:flex;gap:10px;line-height:1.7}
+    .list-item .check{color:#bffff7}
+    .price-card .btn{margin-top:auto}
+    .faq-item{padding:22px}
+    .faq-q{font-size:22px;font-weight:650;letter-spacing:-.03em}
+    .faq-a{font-size:14px;color:var(--muted);line-height:1.8;margin-top:12px}
+    .cta{padding:26px;border-radius:34px;background:linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.03));border:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin:0 0 90px}
+    .cta-title{font-size:44px;line-height:1.05;letter-spacing:-.05em;font-weight:700;margin-top:14px}
+    .cta-text{font-size:16px;color:var(--muted);line-height:1.8;max-width:780px;margin-top:14px}
+    .view{display:none}
+    .view.active{display:block}
+    .app-shell{padding:32px 0 48px}
+    .app-grid{display:grid;grid-template-columns:270px 1fr;gap:22px}
+    .sidebar,.main-panel{background:rgba(12,24,32,.84)}
+    .sidebar{padding:18px}
+    .side-link{width:100%;display:flex;align-items:center;gap:12px;padding:14px 14px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);margin-top:10px;cursor:pointer}
+    .freebox{margin-top:18px;padding:16px;border-radius:24px;background:rgba(121,240,227,.1);border:1px solid rgba(121,240,227,.18)}
+    .main-panel{padding:22px}
+    .top-search{padding:18px;border-radius:28px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+    .search-wrap{display:flex;gap:12px;align-items:center;margin-top:14px}
+    .input{flex:1;height:50px;padding:0 16px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text)}
+    .input::placeholder{color:rgba(255,255,255,.3)}
+    .app-content{margin-top:20px;display:grid;grid-template-columns:1.12fr .88fr;gap:20px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;padding:8px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.05);margin-bottom:18px}
+    .tabs button{border:none;border-radius:12px;padding:10px 14px;background:transparent;color:var(--muted);cursor:pointer}
+    .tabs button.active{background:white;color:#08131a}
+    .hidden{display:none}
+    .saved-card{padding:16px;border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.05);margin-top:12px}
+    .paywall-teaser{padding:18px;background:linear-gradient(145deg, rgba(121,240,227,.12), transparent);border:1px solid var(--line)}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+    .modal-backdrop.open{display:flex}
+    .modal{max-width:1100px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:32px;overflow:hidden;box-shadow:var(--shadow);display:grid;grid-template-columns:.94fr 1.06fr}
+    .modal-left,.modal-right{padding:28px;position:relative}
+    .modal-left{border-right:1px solid var(--line);overflow:hidden}
+    .close{position:absolute;top:18px;right:18px;width:38px;height:38px;border:none;border-radius:14px;background:rgba(255,255,255,.06);color:white;cursor:pointer}
+    .small-caps{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#bffff7}
+    @media (max-width: 1100px){
+      .hero,.app-grid,.app-content,.split,.pricing,.grid-4{grid-template-columns:1fr 1fr}
+      h1{font-size:58px}
+      .section-title,.cta-title{font-size:38px}
+      .modal{grid-template-columns:1fr}
+      .modal-left{border-right:none;border-bottom:1px solid var(--line)}
+    }
+    @media (max-width: 800px){
+      .nav-links,.nav-actions{display:none}
+      .hero,.metrics,.grid-4,.grid-2,.pricing,.app-grid,.app-content,.split,.stat-grid,.cta{grid-template-columns:1fr}
+      h1{font-size:46px}
+      .section-title,.cta-title{font-size:32px}
+      .hero{padding-top:38px}
+      .container{padding:0 18px}
+      .preview-head{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="glow g1"></div>
+    <div class="glow g2"></div>
+
+    <div class="nav">
+      <div class="container nav-inner">
+        <div class="brand" onclick="showView('landing')">
+          <div class="brand-icon"></div>
+          <div>
+            <div class="brand-name">Cribly</div>
+            <div class="brand-sub">ownership intelligence</div>
+          </div>
+        </div>
+        <div class="nav-links">
+          <a href="#product">Product</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#faq">FAQ</a>
+          <button onclick="showView('appview')">App Preview</button>
+        </div>
+        <div class="nav-actions">
+          <button class="btn ghost" onclick="toggleView()">Switch view</button>
+          <button class="btn primary" onclick="showView('appview')">Start free</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="landing" class="view active">
+      <section class="container hero">
+        <div>
+          <div class="badge">New category: ownership intelligence</div>
+          <h1>See what a home will really cost you to own.</h1>
+          <p>Cribly reveals hidden ownership pressure before and after you buy — from taxes and insurance to maintenance and HOA risk.</p>
+          <div class="hero-actions">
+            <button class="btn primary" onclick="showView('appview')">Start free</button>
+            <button class="btn ghost" onclick="openPaywall()">See sample analysis</button>
+          </div>
+
+          <div class="metrics">
+            <div class="card metric">
+              <div class="metric-icon">↗</div>
+              <div class="metric-label">Pressure forecast</div>
+              <div class="metric-value">12, 24, 36 mo</div>
+              <div class="metric-note">Know where costs can change</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-icon">⛨</div>
+              <div class="metric-label">Hidden signals</div>
+              <div class="metric-value">Tax • Insurance • HOA</div>
+              <div class="metric-note">Decode what the listing doesn’t say</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-icon">✦</div>
+              <div class="metric-label">AI summary</div>
+              <div class="metric-value">Readable, fast</div>
+              <div class="metric-note">Plain-English ownership insight</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-preview">
+          <div class="card">
+            <div class="preview-head">
+              <div>
+                <div class="preview-title">4217 Palm Ridge Ave</div>
+                <div class="preview-sub">Tampa, FL</div>
+              </div>
+              <div class="pill high">High ownership pressure</div>
+            </div>
+            <div class="preview-body">
+              <div class="stat-grid">
+                <div class="stat-box">
+                  <div class="eyebrow">Monthly picture</div>
+                  <div class="stat-value">$4,180</div>
+                  <div class="stat-note">Estimated carrying profile</div>
+                </div>
+                <div class="stat-box">
+                  <div class="eyebrow">Ownership score</div>
+                  <div class="stat-value">71 / 100</div>
+                  <div class="stat-note">Watch before you commit</div>
+                </div>
+                <div class="stat-box">
+                  <div class="eyebrow">Credits used</div>
+                  <div class="stat-value">5</div>
+                  <div class="stat-note">Deep analysis</div>
+                </div>
+              </div>
+
+              <div class="split">
+                <div class="box">
+                  <div class="eyebrow">Risk breakdown</div>
+                  <h3>Why this address feels expensive later</h3>
+                  <div class="row">
+                    <div class="row-top"><span>Tax pressure</span><span>High • 62</span></div>
+                    <div class="bar"><span style="width:62%"></span></div>
+                  </div>
+                  <div class="row">
+                    <div class="row-top"><span>Insurance pressure</span><span>High • 74</span></div>
+                    <div class="bar"><span style="width:74%"></span></div>
+                  </div>
+                  <div class="row">
+                    <div class="row-top"><span>Maintenance pressure</span><span>Medium • 49</span></div>
+                    <div class="bar"><span style="width:49%"></span></div>
+                  </div>
+                  <div class="row">
+                    <div class="row-top"><span>HOA pressure</span><span>Medium • 31</span></div>
+                    <div class="bar"><span style="width:31%"></span></div>
+                  </div>
+                </div>
+
+                <div class="box ai-box">
+                  <div class="ai-title">✦ AI insight</div>
+                  <div class="ai-heading">This property looks affordable upfront, but the risk profile becomes meaningfully heavier after closing.</div>
+                  <div class="ai-text">Cribly sees elevated insurance pressure, medium tax reassessment exposure, and a reserve-planning signal that suggests buyers should create a larger ownership buffer than the listing alone implies.</div>
+                  <div class="locked">
+                    <div class="small">Premium tools</div>
+                    <div class="ai-text" style="margin-top:8px">• Compare this home against 3 others<br/>• Unlock negotiation brief<br/>• Reveal deeper scenario model</div>
+                    <button class="btn primary" style="width:100%;margin-top:14px" onclick="openPaywall()">Unlock full analysis</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="box" style="margin-top:16px">
+                <div class="row-top"><span class="eyebrow" style="text-transform:none;letter-spacing:0;color:var(--muted)">Ownership forecast</span><span class="pill" style="padding:6px 10px">36 months</span></div>
+                <div class="timeline-item">
+                  <div class="row-top"><span>0–12 months</span><span class="pill high">High</span></div>
+                  <div class="timeline-title">Insurance renewal could jump faster than expected</div>
+                  <div class="timeline-text">Coastal or weather exposure and replacement-cost pressure may raise carrying costs.</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="row-top"><span>12–24 months</span><span class="pill medium">Medium</span></div>
+                  <div class="timeline-title">Tax reassessment risk begins to matter</div>
+                  <div class="timeline-text">Ownership affordability may shift after local reassessment catches up.</div>
+                </div>
+                <div class="timeline-item">
+                  <div class="row-top"><span>24–36 months</span><span class="pill medium">Medium</span></div>
+                  <div class="timeline-title">Major system reserve planning recommended</div>
+                  <div class="timeline-text">Build a larger reserve to avoid surprise repair stress.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="product" class="container section">
+        <div class="section-head">
+          <div class="section-eyebrow">Why Cribly</div>
+          <div class="section-title">You should not discover the real cost of a home after you own it.</div>
+          <div class="section-desc">Cribly is built for the moment between attraction and regret. It surfaces the hidden ownership pressure behind an address so users can make sharper home decisions.</div>
+        </div>
+        <div class="grid-4">
+          <div class="card feature"><div class="feature-icon">⌂</div><div class="feature-title">Not another listing app</div><div class="feature-text">Cribly does not compete on browsing. It competes on clarity.</div></div>
+          <div class="card feature"><div class="feature-icon">⛨</div><div class="feature-title">Hidden ownership signals</div><div class="feature-text">See tax, insurance, maintenance, and HOA pressure in one simple view.</div></div>
+          <div class="card feature"><div class="feature-icon">✦</div><div class="feature-title">AI that explains</div><div class="feature-text">Structured scoring first, plain-English insight second.</div></div>
+          <div class="card feature"><div class="feature-icon">🔔</div><div class="feature-title">Built to convert</div><div class="feature-text">Free preview on top, premium planning tools behind a clean paywall.</div></div>
+        </div>
+      </section>
+
+      <section class="container section steps">
+        <div class="section-head">
+          <div class="section-eyebrow">How it works</div>
+          <div class="section-title">Fast enough for buyers. Smart enough for serious decisions.</div>
+          <div class="section-desc">The product flow is designed to feel frictionless: one address in, one clarity system out.</div>
+        </div>
+        <div class="grid-4">
+          <div class="card feature"><div class="num">01</div><div class="feature-title">Enter an address</div><div class="feature-text">Paste a listing or type a property address to start.</div></div>
+          <div class="card feature"><div class="num">02</div><div class="feature-title">Decode ownership pressure</div><div class="feature-text">Cribly builds a risk profile across the categories that matter most.</div></div>
+          <div class="card feature"><div class="num">03</div><div class="feature-title">Read the forecast</div><div class="feature-text">Get a timeline of how ownership pain may evolve over time.</div></div>
+          <div class="card feature"><div class="num">04</div><div class="feature-title">Upgrade for the advantage</div><div class="feature-text">Unlock compare mode, deeper AI insight, and planning tools.</div></div>
+        </div>
+      </section>
+
+      <section id="pricing" class="container section">
+        <div class="section-head">
+          <div class="section-eyebrow">Pricing</div>
+          <div class="section-title">Built for serious buyers, not just browsers.</div>
+          <div class="section-desc">Basic is free by design. Paid plans unlock depth, planning power, and more property coverage.</div>
+        </div>
+        <div class="switch">
+          <button id="monthlyBtn" class="active" onclick="setBilling('monthly')">Monthly</button>
+          <button id="annualBtn" onclick="setBilling('annual')">Annual</button>
+          <span class="badge" style="margin-left:4px">Save more yearly</span>
+        </div>
+        <div class="pricing">
+          <div class="card price-card">
+            <div class="price-top"><div><div class="price-name">Basic</div><div class="price-sub">Get the feel of Cribly</div></div></div>
+            <div class="price-value" data-monthly="Free" data-annual="Free">Free</div>
+            <div class="price-credits">5 quick scans • 1 deep analysis</div>
+            <div class="list">
+              <div class="list-item"><span class="check">✓</span><span>1 saved property</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Basic ownership snapshot</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Limited alerts</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Locked premium modules</span></div>
+            </div>
+            <button class="btn ghost">Start free</button>
+          </div>
+          <div class="card price-card popular">
+            <div class="price-top"><div><div class="price-name">Plus</div><div class="price-sub">For active buyers and owners</div></div><div class="badge" style="padding:7px 10px;background:var(--teal);color:#08131a;border:none">Most popular</div></div>
+            <div class="price-value" data-monthly="$15/mo" data-annual="$144/yr">$15/mo</div>
+            <div class="price-credits">80 credits / month</div>
+            <div class="list">
+              <div class="list-item"><span class="check">✓</span><span>5 saved properties</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Full ownership forecast</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Compare mode</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Richer AI insights</span></div>
+            </div>
+            <button class="btn primary">Choose Plus</button>
+          </div>
+          <div class="card price-card">
+            <div class="price-top"><div><div class="price-name">Pro</div><div class="price-sub">For serious users</div></div></div>
+            <div class="price-value" data-monthly="$35/mo" data-annual="$300/yr">$35/mo</div>
+            <div class="price-credits">250 credits / month</div>
+            <div class="list">
+              <div class="list-item"><span class="check">✓</span><span>20 saved properties</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Advanced scenarios</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Priority refresh</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Planning briefs</span></div>
+            </div>
+            <button class="btn ghost">Go Pro</button>
+          </div>
+          <div class="card price-card">
+            <div class="price-top"><div><div class="price-name">Pro Team</div><div class="price-sub">For agents and investors</div></div></div>
+            <div class="price-value" data-monthly="$99/mo billed annually" data-annual="$999/yr">$99/mo billed annually</div>
+            <div class="price-strike" id="teamStrike" style="display:none">$1,188</div>
+            <div class="price-credits">Higher shared usage</div>
+            <div class="list">
+              <div class="list-item"><span class="check">✓</span><span>Client-ready reports</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Professional workflow</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Future team collaboration</span></div>
+              <div class="list-item"><span class="check">✓</span><span>Portfolio-level monitoring</span></div>
+            </div>
+            <button class="btn ghost">Get Team Plan</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="container section">
+        <div class="section-head">
+          <div class="section-eyebrow">FAQ</div>
+          <div class="section-title">Questions users will ask before they trust it.</div>
+          <div class="section-desc">The landing page should answer the trust questions fast and cleanly.</div>
+        </div>
+        <div class="grid-2">
+          <div class="card faq-item"><div class="faq-q">What does Cribly analyze?</div><div class="faq-a">Cribly turns a property address into a simple ownership-pressure forecast so users can understand hidden cost signals before and after purchase.</div></div>
+          <div class="card faq-item"><div class="faq-q">Is Cribly for buyers or homeowners?</div><div class="faq-a">Both. It is most useful while evaluating homes, but it also works as an ownership-intelligence tool after closing.</div></div>
+          <div class="card faq-item"><div class="faq-q">What is a credit?</div><div class="faq-a">Credits unlock actions like deep property analysis, compare mode, planning briefs, and future premium tools.</div></div>
+          <div class="card faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Monthly plans are cancel-anytime. Annual plans are discounted and billed upfront.</div></div>
+        </div>
+      </section>
+
+      <section class="container">
+        <div class="cta card">
+          <div>
+            <div class="section-eyebrow">Final call to action</div>
+            <div class="cta-title">Buy with clarity. Not surprises.</div>
+            <div class="cta-text">Cribly is designed to become the premium ownership-intelligence layer between a listing and a life-changing decision.</div>
+          </div>
+          <div><button class="btn primary" onclick="showView('appview')">Analyze your first address</button></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="appview" class="view">
+      <section class="container app-shell">
+        <div class="app-grid">
+          <div class="card sidebar">
+            <div class="brand" style="cursor:default;margin-bottom:12px">
+              <div class="brand-icon"></div>
+              <div>
+                <div class="brand-name" style="font-size:18px">Cribly</div>
+                <div class="brand-sub">dashboard</div>
+              </div>
+            </div>
+            <button class="side-link">⌂ Overview</button>
+            <button class="side-link">⌕ New Analysis</button>
+            <button class="side-link">☰ Saved Properties</button>
+            <button class="side-link">◫ Credits & Billing</button>
+            <button class="side-link">↗ Usage</button>
+            <div class="freebox">
+              <div style="font-size:14px;color:#bffff7">Free plan</div>
+              <div style="font-size:32px;font-weight:700;letter-spacing:-.05em;margin-top:8px">2 credits left</div>
+              <div style="font-size:14px;color:var(--muted);margin-top:4px;line-height:1.7">Upgrade to unlock more deep property analyses.</div>
+              <button class="btn" style="background:white;color:#08131a;width:100%;margin-top:14px" onclick="openPaywall()">Upgrade</button>
+            </div>
+          </div>
+
+          <div class="card main-panel">
+            <div class="top-search">
+              <div style="font-size:14px;color:var(--muted)">Analyze a new property</div>
+              <div style="font-size:34px;font-weight:700;letter-spacing:-.05em;margin-top:6px">Ownership clarity in one search</div>
+              <div class="search-wrap">
+                <input class="input" value="4217 Palm Ridge Ave, Tampa, FL" placeholder="Enter a U.S. property address" />
+                <button class="btn primary">Analyze</button>
+              </div>
+            </div>
+
+            <div class="app-content">
+              <div>
+                <div class="card" style="padding:22px;background:rgba(255,255,255,.04)">
+                  <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap">
+                    <div>
+                      <div style="font-size:14px;color:var(--muted)">Property analysis</div>
+                      <div style="font-size:34px;font-weight:700;letter-spacing:-.05em;margin-top:6px">4217 Palm Ridge Ave</div>
+                      <div style="font-size:14px;color:var(--muted2);margin-top:6px">Tampa, FL</div>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                      <div class="pill">Ownership score 71</div>
+                      <div class="pill high">High risk band</div>
+                    </div>
+                  </div>
+                  <div class="tabs" style="margin-top:18px">
+                    <button class="active" onclick="showTab('overview',this)">Overview</button>
+                    <button onclick="showTab('forecast',this)">Forecast</button>
+                    <button onclick="showTab('insight',this)">AI Insight</button>
+                    <button onclick="showTab('premium',this)">Premium</button>
+                  </div>
+
+                  <div id="tab-overview" class="tab-pane">
+                    <div class="stat-grid">
+                      <div class="stat-box"><div class="eyebrow">Monthly picture</div><div class="stat-value">$4,180</div><div class="stat-note">Estimated ownership profile</div></div>
+                      <div class="stat-box"><div class="eyebrow">Top flag</div><div class="stat-value">Insurance</div><div class="stat-note">Pressure may rise faster than expected</div></div>
+                      <div class="stat-box"><div class="eyebrow">Confidence</div><div class="stat-value">Moderate</div><div class="stat-note">Useful signal, not certainty</div></div>
+                    </div>
+                    <div class="box" style="margin-top:16px">
+                      <h3>Risk breakdown</h3>
+                      <div class="row"><div class="row-top"><span>Tax pressure</span><span>High • 62</span></div><div class="bar"><span style="width:62%"></span></div></div>
+                      <div class="row"><div class="row-top"><span>Insurance pressure</span><span>High • 74</span></div><div class="bar"><span style="width:74%"></span></div></div>
+                      <div class="row"><div class="row-top"><span>Maintenance pressure</span><span>Medium • 49</span></div><div class="bar"><span style="width:49%"></span></div></div>
+                      <div class="row"><div class="row-top"><span>HOA pressure</span><span>Medium • 31</span></div><div class="bar"><span style="width:31%"></span></div></div>
+                    </div>
+                  </div>
+
+                  <div id="tab-forecast" class="tab-pane hidden">
+                    <div class="timeline-item"><div class="row-top"><span>0–12 months</span><span class="pill high">High</span></div><div class="timeline-title">Insurance renewal could jump faster than expected</div><div class="timeline-text">Coastal or weather exposure and replacement-cost pressure may raise carrying costs.</div></div>
+                    <div class="timeline-item"><div class="row-top"><span>12–24 months</span><span class="pill medium">Medium</span></div><div class="timeline-title">Tax reassessment risk begins to matter</div><div class="timeline-text">Ownership affordability may shift after local reassessment catches up.</div></div>
+                    <div class="timeline-item"><div class="row-top"><span>24–36 months</span><span class="pill medium">Medium</span></div><div class="timeline-title">Major system reserve planning recommended</div><div class="timeline-text">Build a larger reserve to avoid surprise repair stress.</div></div>
+                  </div>
+
+                  <div id="tab-insight" class="tab-pane hidden">
+                    <div class="box ai-box">
+                      <div class="ai-title">✦ Cribly AI summary</div>
+                      <div class="ai-heading">This home looks emotionally appealing and initially manageable, but Cribly sees a heavier ownership profile over time than the list presentation suggests.</div>
+                      <div class="ai-text">The biggest risk driver is insurance pressure, followed by a moderate tax shift risk and a maintenance reserve profile that may become uncomfortable for buyers who only budget around the mortgage.</div>
+                      <div class="ai-text">The best next move is not panic — it is verification. Ask sharper questions, plan a stronger buffer, and compare this address against alternatives before committing.</div>
+                    </div>
+                  </div>
+
+                  <div id="tab-premium" class="tab-pane hidden">
+                    <div class="grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+                      <div class="box"><div class="small">Locked</div><h3>Compare homes</h3><div class="ai-text">See this property against better alternatives.</div></div>
+                      <div class="box"><div class="small">Locked</div><h3>Negotiation brief</h3><div class="ai-text">Generate questions and leverage points.</div></div>
+                      <div class="box"><div class="small">Locked</div><h3>Scenario model</h3><div class="ai-text">See how ownership pressure changes over time.</div></div>
+                    </div>
+                    <button class="btn primary" style="margin-top:14px" onclick="openPaywall()">Unlock premium</button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="card" style="padding:22px;background:rgba(255,255,255,.04)">
+                  <div style="font-size:14px;color:var(--muted)">Saved properties</div>
+                  <div class="saved-card"><div style="display:flex;justify-content:space-between;gap:12px"><div><div style="font-weight:650">4217 Palm Ridge Ave</div><div style="font-size:14px;color:var(--muted2);margin-top:4px">Tampa, FL</div></div><div class="pill">71</div></div><div style="font-size:14px;color:var(--muted);margin-top:10px">High pressure</div></div>
+                  <div class="saved-card"><div style="display:flex;justify-content:space-between;gap:12px"><div><div style="font-weight:650">118 Mercer Hollow</div><div style="font-size:14px;color:var(--muted2);margin-top:4px">Austin, TX</div></div><div class="pill">58</div></div><div style="font-size:14px;color:var(--muted);margin-top:10px">Medium pressure</div></div>
+                  <div class="saved-card"><div style="display:flex;justify-content:space-between;gap:12px"><div><div style="font-weight:650">96 Harbor Crest</div><div style="font-size:14px;color:var(--muted2);margin-top:4px">San Diego, CA</div></div><div class="pill">44</div></div><div style="font-size:14px;color:var(--muted);margin-top:10px">Medium pressure</div></div>
+                </div>
+                <div class="card paywall-teaser" style="margin-top:18px">
+                  <div style="font-size:14px;color:#bffff7">Paywall logic</div>
+                  <div style="font-size:30px;font-weight:700;letter-spacing:-.05em;margin-top:10px">Basic is free. Serious usage upgrades naturally.</div>
+                  <div class="ai-text">Free users get enough access to trust the product, but premium users unlock compare mode, richer AI insight, more saved homes, and deeper planning tools.</div>
+                  <button class="btn" style="background:white;color:#08131a;margin-top:14px" onclick="openPaywall()">Open paywall</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="paywall" class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-left">
+          <div class="glow" style="width:220px;height:220px;left:0;top:30px"></div>
+          <button class="close" onclick="closePaywall()">✕</button>
+          <div class="badge">Unlock Cribly</div>
+          <div style="font-size:42px;line-height:1.05;letter-spacing:-.05em;font-weight:700;margin-top:16px">Free gets you the preview. Paid gets you the advantage.</div>
+          <div class="section-desc" style="margin-top:18px">Upgrade to reveal the full ownership forecast, compare homes side by side, and access richer planning tools.</div>
+          <div class="list" style="margin-top:24px">
+            <div class="list-item"><span class="check">✓</span><span>Full ownership forecast</span></div>
+            <div class="list-item"><span class="check">✓</span><span>More saved properties</span></div>
+            <div class="list-item"><span class="check">✓</span><span>Compare mode</span></div>
+            <div class="list-item"><span class="check">✓</span><span>Planning briefs</span></div>
+            <div class="list-item"><span class="check">✓</span><span>Richer AI insights</span></div>
+          </div>
+        </div>
+        <div class="modal-right">
+          <div class="switch">
+            <button id="monthlyBtn2" class="active" onclick="setBilling('monthly')">Monthly</button>
+            <button id="annualBtn2" onclick="setBilling('annual')">Annual</button>
+          </div>
+          <div class="list" style="gap:14px">
+            <div class="card price-card popular" style="min-height:auto">
+              <div class="price-top"><div><div class="price-name">Plus</div><div class="price-sub">For active buyers and owners</div></div><div class="badge" style="padding:7px 10px;background:var(--teal);color:#08131a;border:none">Best value</div></div>
+              <div class="price-value" data-monthly="$15/mo" data-annual="$144/yr">$15/mo</div>
+              <div class="price-credits">80 credits / month</div>
+              <button class="btn" style="background:white;color:#08131a;margin-top:18px">Choose Plus</button>
+            </div>
+            <div class="card price-card" style="min-height:auto">
+              <div class="price-top"><div><div class="price-name">Pro</div><div class="price-sub">For serious users</div></div></div>
+              <div class="price-value" data-monthly="$35/mo" data-annual="$300/yr">$35/mo</div>
+              <div class="price-credits">250 credits / month</div>
+              <button class="btn ghost" style="margin-top:18px">Go Pro</button>
+            </div>
+            <div class="card price-card" style="min-height:auto">
+              <div class="price-top"><div><div class="price-name">Pro Team</div><div class="price-sub">For agents and investors</div></div></div>
+              <div class="price-value" data-monthly="$99/mo billed annually" data-annual="$999/yr">$99/mo billed annually</div>
+              <div class="price-strike" id="teamStrike2" style="display:none">$1,188</div>
+              <div class="price-credits">Higher shared usage</div>
+              <button class="btn ghost" style="margin-top:18px">Get Team Plan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showView(id){
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function toggleView(){
+      const landing = document.getElementById('landing');
+      showView(landing.classList.contains('active') ? 'appview' : 'landing');
+    }
+    function openPaywall(){ document.getElementById('paywall').classList.add('open'); }
+    function closePaywall(){ document.getElementById('paywall').classList.remove('open'); }
+    document.getElementById('paywall').addEventListener('click', function(e){ if(e.target===this) closePaywall(); });
+
+    function setBilling(mode){
+      const monthly = mode === 'monthly';
+      document.querySelectorAll('[data-monthly]').forEach(el=>{ el.textContent = el.getAttribute(monthly ? 'data-monthly' : 'data-annual'); });
+      document.getElementById('monthlyBtn').classList.toggle('active', monthly);
+      document.getElementById('annualBtn').classList.toggle('active', !monthly);
+      document.getElementById('monthlyBtn2').classList.toggle('active', monthly);
+      document.getElementById('annualBtn2').classList.toggle('active', !monthly);
+      document.getElementById('teamStrike').style.display = monthly ? 'none' : 'block';
+      document.getElementById('teamStrike2').style.display = monthly ? 'none' : 'block';
+    }
+
+    function showTab(tab, btn){
+      document.querySelectorAll('.tab-pane').forEach(p=>p.classList.add('hidden'));
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+      btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>
